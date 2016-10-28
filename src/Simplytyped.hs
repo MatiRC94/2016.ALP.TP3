@@ -21,8 +21,8 @@ conversion' :: [String] -> LamTerm -> Term
 conversion' b (LVar n)     = maybe (Free (Global n)) Bound (n `elemIndex` b)
 conversion' b (App t u)    = conversion' b t :@: conversion' b u
 conversion' b (Abs n t u)  = Lam t (conversion' (n:b) u)
-conversion' b (LetLT s v t)= LetT (conversion' b v) (conversion' (n:b) t)
-
+conversion' b (LetLT s v t)= LetT (conversion' b v) (conversion' (s:b) t)
+conversion' b (AsLT t lt)  = AsT t (conversion' b lt)
 -----------------------
 --- eval
 -----------------------
@@ -33,7 +33,7 @@ sub _ _ (Bound j) | otherwise = Bound j
 sub _ _ (Free n)              = Free n
 sub i t (u :@: v)             = sub i t u :@: sub i t v
 sub i t (Lam t' u)            = Lam t' (sub (i+1) t u)
-sub i t (LetT t u)            = 
+sub i t (LetT t1 u)           = LetT  
 
 -- evaluador de términos
 eval :: NameEnv Value Type -> Term -> Value
@@ -47,7 +47,8 @@ eval e (Lam t u :@: v)       = case eval e v of
 eval e (u :@: v)             = case eval e u of
                  VLam t u' -> eval e (Lam t u' :@: v)
                  _         -> error "Error de tipo en run-time, verificar type checker"
-eval e (LetT t1 t2)           = undefined
+eval e (LetT t1 t2)          = undefined
+eval e (AsT t u)             = eval e u
                                      
 -----------------------
 --- quoting
@@ -102,4 +103,18 @@ infer' c e (t :@: u) = infer' c e t >>= \tt ->
                          _         -> notfunError tt
 infer' c e (Lam t u) = infer' (t:c) e u >>= \tu ->
                        ret $ Fun t tu
+infer' c e (LetT t1 t2) = infer' c e t1      >>= \tt ->
+                          infer' (tt:c) e t2
+infer' c e (AsT t u)    = infer' c e u >>= \tt ->
+                          case tt of
+                               t    -> ret tt
+                               _    -> matchError t tt      -- se esperaba que sea del tipo q se le da a AS pero es de tipo tt
+
+
+
+
+
+
+
+
 ----------------------------------

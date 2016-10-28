@@ -29,6 +29,7 @@ module Common where
                 |  Abs String Type LamTerm
                 |  App LamTerm LamTerm
                 |  LetLT String LamTerm LamTerm 
+                |  AsLT Type LamTerm 
                 deriving (Show, Eq)
 
 
@@ -37,7 +38,8 @@ module Common where
              | Free Name 
              | Term :@: Term
              | Lam Type Term
-             | LetT Term Term 
+             | LetT Term Term
+             | AsT Type Term 
           deriving (Show, Eq)
 
   -- Valores

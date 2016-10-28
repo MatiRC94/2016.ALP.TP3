@@ -55,7 +55,6 @@ eval e (LetT t1 t2)           = undefined
 
 quote :: Value -> Term
 quote (VLam t f) = Lam t f
-quote (
 
 ----------------------
 --- type checker

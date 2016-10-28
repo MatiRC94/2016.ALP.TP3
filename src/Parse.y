@@ -26,13 +26,14 @@ import Data.Char
     TYPE    { TType }
     DEF     { TDef }
     LET     { TLet }
+    IN      { TIn }
     AS      { TAs }
 
 %right VAR
 %left '=' 
 %right '->'
 %right '\\' '.' LET IN
-%left AS '\\'
+%left AS 
 %right REC
 %right SUC 
 %right SND FST
